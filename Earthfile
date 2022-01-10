@@ -26,7 +26,7 @@ compile:
 	ARG GOARM
 	RUN go build -mod=vendor -o bin/server ./app/main.go
 	SAVE ARTIFACT bin/server /bin/server
-	SAVE IMAGE --push ghcr.io/troop-dev/k8s-pod-labeler:compile
+	SAVE IMAGE --push ghcr.io/troop-dev/k8s-pod-labeler-cache:compile
 
 build:
 	FROM alpine:3.13.6

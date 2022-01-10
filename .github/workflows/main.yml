@@ -1,0 +1,60 @@
+name: main
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+    steps:
+      - name: Set up QEMU
+        id: qemu
+        uses: docker/setup-qemu-action@v1
+        with:
+            image: tonistiigi/binfmt:latest
+            platforms: all
+      - uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.TROOP_CI_SSH_KEY }}
+      - uses: actions/checkout@v2
+        with:
+          submodules: false
+      - name: checkout submodules
+        run: "git submodule update --init"
+      - name: Docker Login
+        env:
+          DOCKER_REGISTRY: ghcr.io
+          DOCKER_USER: ${{ github.actor }}
+          DOCKER_PASS: ${{ secrets.GITHUB_TOKEN }}
+        run: docker login $DOCKER_REGISTRY --username "$DOCKER_USER" --password "$DOCKER_PASS"
+      - uses: go-semantic-release/action@v1
+        id: semver
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          allow-initial-development-versions: true
+          force-bump-patch-version: true
+          # prerelease: false
+      - name: Download latest earthly
+        run: "sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/download/v0.5.23/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly'"
+      - name: Earthly version
+        run: earthly --version
+      - name: Run build
+        env:
+          EARTHLY_BUILD_ARGS: "COMMIT_HASH,VERSION"
+          COMMIT_HASH: ${{ github.sha }}
+          VERSION: ${{ steps.semver.outputs.version }}
+          GH_USER: ${{ github.actor }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EARTHLY_SECRETS: "GH_USER,GH_TOKEN"
+        run: |
+          earthly -P --ci --push +ci
+          earthly -P --artifact +test/coverage.out coverage.out
+      - uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.out # optional
+          fail_ci_if_error: true # optional (default = false)
+          verbose: true # optional (default = false)
