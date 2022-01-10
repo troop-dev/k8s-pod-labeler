@@ -47,4 +47,4 @@ spec:
       volumes:
         - name: certs
           secret:
-            secretName: {{ include "kube-secrets-init.certificateSecretName" . }}
+            secretName: k8s-pod-labeler
