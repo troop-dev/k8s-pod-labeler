@@ -74,7 +74,9 @@ func (m *mutateHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 	// and write it back
 	w.WriteHeader(http.StatusOK)
-	w.Write(mutated)
+	if _, err = w.Write(mutated); err != nil {
+		sendError(err, w)
+	}
 }
 
 func sendError(err error, w http.ResponseWriter) {
