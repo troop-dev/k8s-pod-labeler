@@ -1,0 +1,63 @@
+# generate the certs
+{{- $caCrt := "" }}
+{{- $tlsCrt := "" }}
+{{- $tlsKey := "" }}
+{{- $ca := genCA "svc-cat-ca" 3650 }}
+{{- $svcName := include "kube-secrets-init.fullname" . }}
+{{- $cn := printf "%s.%s.svc" $svcName .Release.Namespace }}
+{{- $altName1 := printf "%s.cluster.local" $cn }}
+{{- $altName2 := printf "%s" $cn }}
+{{- $server := genSignedCert $cn nil (list $altName1 $altName2) 365 $ca }}
+{{- $tlsCrt = b64enc $server.Cert }}
+{{- $tlsKey = b64enc $server.Key }}
+{{- $caCrt =  b64enc $ca.Cert }}
+
+# create a secret
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/tls
+metadata:
+  name: k8s-pod-labeler
+data:
+  tls.crt: {{ $tlsCrt }}
+  tls.key: {{ $tlsKey }}
+  ca.crt:  {{ $caCrt }}
+
+---
+
+# create the webhook
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: k8s-pod-labeler
+webhooks:
+  - name: k8s-pod-labeler.troop.com
+    admissionReviewVersions: ["v1"]
+    clientConfig:
+      service:
+        name: k8s-pod-labeler
+        namespace: {{ .Release.Namespace }}
+        path: "/mutate"
+      caBundle: {{ $caCrt }}
+    rules:
+      - operations:
+          - CREATE
+        apiGroups:
+          - "*"
+        apiVersions:
+          - "*"
+        resources:
+          - pods
+    failurePolicy: {{ .Values.failurePolicy }}
+    timeoutSeconds: {{ .Values.timeoutSeconds }}
+    sideEffects: None
+    namespaceSelector:
+      matchExpressions:
+      - key: troop.com/k8s-pod-labeler
+        operator: In
+        values:
+        - enabled
+      - key: troop.com/k8s-pod-labeler
+        operator: NotIn
+        values:
+        - disabled

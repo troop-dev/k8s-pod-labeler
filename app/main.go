@@ -27,6 +27,7 @@ func main() {
 	}
 
 	mux.HandleFunc("/", handleHealthCheck)
+	mux.HandleFunc("/healthz", handleHealthCheck)
 	mux.HandleFunc("/mutate", mutateHandler.Handle)
 
 	s := &http.Server{
@@ -37,8 +38,8 @@ func main() {
 		MaxHeaderBytes: 1 << 20, // 1048576
 	}
 	// TODO: move to config
-	sslCertFilePath := "./ssl/cert.pem"
-	sslKeyFilePath := "./ssl/cert.key"
+	sslCertFilePath := "/etc/webhook/certs/tls.crt"
+	sslKeyFilePath := "/etc/webhook/certs/tls.key"
 	// start listening and block until shutdown
 	log.Fatal(s.ListenAndServeTLS(sslCertFilePath, sslKeyFilePath))
 }

@@ -1,0 +1,6 @@
+certificate:
+  generate: true
+failurePolicy: "IGNORE"
+timeoutSeconds: 10
+dockerImage: "ghcr.io/troop-dev/frontend-api"
+containerPort: 8443

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-pod-labeler
+  labels:
+    app: k8s-pod-labeler
+spec:
+  publishNotReadyAddresses: true
+  ports:
+    - port: 443
+      targetPort: {{ .Values.containerPort }}
+  selector:
+    app: k8s-pod-labeler

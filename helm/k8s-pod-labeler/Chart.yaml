@@ -1,0 +1,6 @@
+apiVersion: v2
+name: k8s-pod-labeler
+description: https://github.com/troop-dev/k8s-pod-labeler
+type: application
+version: 0.0.0
+appVersion: "0.0.0"

@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-pod-labeler
+  labels:
+    app: k8s-pod-labeler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-pod-labeler
+  template:
+    metadata:
+      name: k8s-pod-labeler
+      labels:
+        app: k8s-pod-labeler
+    spec:
+      imagePullSecrets:
+      - name: troop-dev-github-docker-registry
+      containers:
+        - name: mutator
+          image: "{{ .Values.dockerImage }}:{{ .Chart.AppVersion }}"
+          imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+          ports:
+          - containerPort: {{ .Values.containerPort }}
+          volumeMounts:
+          - name: certs
+            mountPath: /etc/webhook/certs
+            readOnly: true
+          livenessProbe:
+            httpGet:
+              scheme: HTTPS
+              path: /healthz
+              port: http
+          readinessProbe:
+            httpGet:
+              scheme: HTTPS
+              path: /healthz
+              port: http
+      volumes:
+        - name: certs
+          secret:
+            secretName: {{ include "kube-secrets-init.certificateSecretName" . }}

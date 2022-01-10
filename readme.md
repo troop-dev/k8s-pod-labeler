@@ -19,3 +19,5 @@ Troop uses the Linkerd service mesh in GKE, which requires a special annotation 
 - https://github.com/slackhq/simple-kubernetes-webhook
 - https://github.com/operator-framework/operator-sdk
 - https://github.com/openshift/generic-admission-server
+- https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.23/#webhookclientconfig-v1-apiextensions-k8s-io
+- https://github.com/morvencao/kube-mutating-webhook-tutorial
