@@ -68,3 +68,28 @@ ci:
 	BUILD +test
 	BUILD +build
 	BUILD +build-arm-v7
+	BUILD +helm-push
+
+helm-push:
+	FROM alpine/helm:3.7.2
+	ENV HELM_EXPERIMENTAL_OCI=1
+	ARG HELM_REPO=https://ghcr.io
+	ARG VERSION
+	# add code
+	WORKDIR /app
+	RUN mkdir ./out
+	COPY --dir helm .
+	# build package in out dir
+	RUN helm package ./helm/k8s-pod-labeler \
+		--version $VERSION \
+		--app-version $VERSION \
+		-d ./out/
+	# login to helm repo
+	RUN --push \
+		--secret GH_USER=+secrets/GH_USER \
+		--secret GH_TOKEN=+secrets/GH_TOKEN \
+		echo $GH_TOKEN  | \
+		helm registry login https://ghcr.io -u $GH_USER --password-stdin
+	# push to repo
+	RUN --push find ./out -name *.tgz | \
+		xargs -I {} -n1 helm push {} oci://ghcr.io/troop-dev/helm
