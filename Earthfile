@@ -50,7 +50,7 @@ build-arm-v7:
 	RUN chmod +x ./server
 	USER nobody
 	ENTRYPOINT ./server run
-	SAVE IMAGE --push ghcr.io/troop-dev/frontend-api:${VERSION}
+	SAVE IMAGE --push ghcr.io/troop-dev/k8s-pod-labeler:${VERSION}
 
 test:
 	FROM +compile

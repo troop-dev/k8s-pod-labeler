@@ -3,7 +3,7 @@
 {{- $tlsCrt := "" }}
 {{- $tlsKey := "" }}
 {{- $ca := genCA "svc-cat-ca" 3650 }}
-{{- $svcName := include "kube-secrets-init.fullname" . }}
+{{- $svcName := "k8s-pod-labeler" }}
 {{- $cn := printf "%s.%s.svc" $svcName .Release.Namespace }}
 {{- $altName1 := printf "%s.cluster.local" $cn }}
 {{- $altName2 := printf "%s" $cn }}
