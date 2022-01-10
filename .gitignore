@@ -1,0 +1,10 @@
+vendor/
+gen/
+bin/
+.env
+mocks/
+coverage.*
+.tmp/
+.idea/
+.vscode/
+.vscode/settings.json
