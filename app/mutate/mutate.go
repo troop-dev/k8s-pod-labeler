@@ -15,9 +15,9 @@ import (
 
 // jsonPatch helps marshal the patch operation as JSON
 type jsonPatch struct {
-	Op    string `json:"op"`
-	Path  string `json:"path"`
-	Value string `json:"value"`
+	Op    string      `json:"op"`
+	Path  string      `json:"path"`
+	Value interface{} `json:"value"`
 }
 
 // Mutate mutates
@@ -56,53 +56,54 @@ func Mutate(body []byte, labels map[string]string, annotations map[string]string
 	// tell K8S how it should modifiy it
 	patches := make([]jsonPatch, 0, len(annotations)+len(labels))
 
-	// add the initial label object patch
-	if len(pod.ObjectMeta.Labels) == 0 && len(labels) > 0 {
-		patch := jsonPatch{
-			Op:    "add",
-			Path:  "/metadata/labels",
-			Value: "{}",
-		}
-		patches = append(patches, patch)
-	}
-
 	// add each new label
+	hasLabels := len(pod.ObjectMeta.Labels) > 0
 	for label, value := range labels {
 		log.Printf("adding label %s", label)
 		if _, ok := pod.ObjectMeta.Labels[label]; !ok {
-			patch := jsonPatch{
-				Op:    "add",
-				Path:  fmt.Sprintf("/metadata/labels/%s", jsonPointersEncode(label)),
-				Value: value,
+			var patch jsonPatch
+			// if first label, add the initial label object
+			if !hasLabels {
+				patch = jsonPatch{
+					Op:    "add",
+					Path:  "/metadata/labels",
+					Value: map[string]string{jsonPointersEncode(label): value},
+				}
+			} else {
+				patch = jsonPatch{
+					Op:    "add",
+					Path:  fmt.Sprintf("/metadata/labels/%s", jsonPointersEncode(label)),
+					Value: value,
+				}
 			}
-
 			patches = append(patches, patch)
+			hasLabels = true
 		} else {
 			log.Printf("skipping label, already exists, %s", label)
 		}
 	}
 
-	// add initial annotation object patch
-	if len(pod.ObjectMeta.Annotations) == 0 && len(annotations) > 0 {
-		patch := jsonPatch{
-			Op:    "add",
-			Path:  "/metadata/annotations",
-			Value: "{}",
-		}
-		patches = append(patches, patch)
-	}
-
 	// add each new annotation
+	hasAnnotations := len(pod.ObjectMeta.Annotations) > 0
 	for annotation, value := range annotations {
 		log.Printf("adding annotation %s", annotation)
 		if _, ok := pod.ObjectMeta.Annotations[annotation]; !ok {
-			patch := jsonPatch{
-				Op:    "add",
-				Path:  fmt.Sprintf("/metadata/annotations/%s", jsonPointersEncode(annotation)),
-				Value: value,
+			var patch jsonPatch
+			if !hasAnnotations {
+				patch = jsonPatch{
+					Op:    "add",
+					Path:  "/metadata/annotationss",
+					Value: map[string]string{jsonPointersEncode(annotation): value},
+				}
+			} else {
+				patch = jsonPatch{
+					Op:    "add",
+					Path:  fmt.Sprintf("/metadata/annotations/%s", jsonPointersEncode(annotation)),
+					Value: value,
+				}
 			}
-
 			patches = append(patches, patch)
+			hasAnnotations = true
 		} else {
 			log.Printf("skipping annotation, already exists, %s", annotation)
 		}

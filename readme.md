@@ -45,6 +45,4 @@ namespaceSelector:
     operator: NotIn
     values:
     - disabled
-
-
 ```
