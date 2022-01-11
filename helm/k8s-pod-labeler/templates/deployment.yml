@@ -28,10 +28,14 @@ spec:
         env:
           - name: PORT
             value: "{{ .Values.containerPort }}"
+          {{- with .Values.appInputs.labels}}
           - name: K8S_LABELS
-            value: {{ .Values.appInputs.labels | toJson | b64enc }}
+            value: {{ . | toJson | b64enc }}
+          {{- end}}
+          {{- with .Values.appInputs.annotations }}
           - name: K8S_ANNOTATIONS
-            value: {{ .Values.appInputs.annotations | toJson | b64enc }}
+            value: {{ . | toJson | b64enc }}
+          {{- end}}
         ports:
         - containerPort: {{ .Values.containerPort }}
         volumeMounts:
