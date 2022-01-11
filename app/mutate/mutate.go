@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 
 	v1 "k8s.io/api/admission/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -55,12 +56,24 @@ func Mutate(body []byte, labels map[string]string, annotations map[string]string
 	// tell K8S how it should modifiy it
 	patches := make([]jsonPatch, 0, len(annotations)+len(labels))
 
+	numLabels := len(pod.ObjectMeta.Labels)
+
 	for label, value := range labels {
-		log.Printf("adding label %s", label)
-		if _, ok := pod.Annotations[label]; !ok {
+		// add the initial empty object
+		if numLabels == 0 {
 			patch := jsonPatch{
 				Op:    "add",
-				Path:  fmt.Sprintf("/metadata/labels/%s", label),
+				Path:  "/metadata/labels",
+				Value: "{}",
+			}
+			patches = append(patches, patch)
+		}
+
+		log.Printf("adding label %s", label)
+		if _, ok := pod.ObjectMeta.Labels[label]; !ok {
+			patch := jsonPatch{
+				Op:    "add",
+				Path:  fmt.Sprintf("/metadata/labels/%s", jsonPointersEncode(label)),
 				Value: value,
 			}
 
@@ -70,16 +83,29 @@ func Mutate(body []byte, labels map[string]string, annotations map[string]string
 		}
 	}
 
+	numAnnotations := len(pod.ObjectMeta.Annotations)
+
 	for annotation, value := range annotations {
-		log.Printf("adding annotation %s", annotation)
-		if _, ok := pod.Annotations[annotation]; !ok {
+		// add the initial empty object
+		if numAnnotations == 0 {
 			patch := jsonPatch{
 				Op:    "add",
-				Path:  fmt.Sprintf("/metadata/annotations/%s", annotation),
+				Path:  "/metadata/annotations",
+				Value: "{}",
+			}
+			patches = append(patches, patch)
+		}
+
+		log.Printf("adding annotation %s", annotation)
+		if _, ok := pod.ObjectMeta.Annotations[annotation]; !ok {
+			patch := jsonPatch{
+				Op:    "add",
+				Path:  fmt.Sprintf("/metadata/annotations/%s", jsonPointersEncode(annotation)),
 				Value: value,
 			}
 
 			patches = append(patches, patch)
+			numAnnotations += 1
 		} else {
 			log.Printf("skipping annotation, already exists, %s", annotation)
 		}
@@ -107,4 +133,13 @@ func Mutate(body []byte, labels map[string]string, annotations map[string]string
 	log.Printf("resp: %s\n", string(responseBody)) // untested section
 
 	return responseBody, nil
+}
+
+// jsonPointersEncode implements jsonpath encoding
+// https://datatracker.ietf.org/doc/html/rfc6901#section-3
+func jsonPointersEncode(in string) string {
+	out := in
+	out = strings.ReplaceAll(out, "~", "~0")
+	out = strings.ReplaceAll(out, "/", "~1")
+	return out
 }

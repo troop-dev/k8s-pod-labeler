@@ -38,12 +38,12 @@ spec:
             httpGet:
               scheme: HTTPS
               path: /healthz
-              port: http
+              port: {{ .Values.containerPort }}
           readinessProbe:
             httpGet:
               scheme: HTTPS
               path: /healthz
-              port: http
+              port: {{ .Values.containerPort }}
       volumes:
         - name: certs
           secret:

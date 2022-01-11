@@ -2,5 +2,5 @@ certificate:
   generate: true
 failurePolicy: "Ignore"
 timeoutSeconds: 10
-dockerImage: "ghcr.io/troop-dev/frontend-api"
+dockerImage: "ghcr.io/troop-dev/k8s-pod-labeler"
 containerPort: 8443
