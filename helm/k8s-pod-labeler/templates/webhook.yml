@@ -48,8 +48,8 @@ webhooks:
           - "*"
         resources:
           - pods
-    failurePolicy: {{ .Values.failurePolicy }}
-    timeoutSeconds: {{ .Values.timeoutSeconds }}
+    failurePolicy: {{ .Values.webhook.failurePolicy }}
+    timeoutSeconds: {{ .Values.webhook.timeoutSeconds }}
     sideEffects: None
     namespaceSelector:
       matchExpressions:

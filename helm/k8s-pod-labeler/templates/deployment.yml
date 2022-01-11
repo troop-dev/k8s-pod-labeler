@@ -15,35 +15,39 @@ spec:
       labels:
         app: k8s-pod-labeler
     spec:
+      {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
-      - name: troop-dev-github-docker-registry
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
       containers:
-        - name: mutator
-          image: "{{ .Values.dockerImage }}:{{ .Chart.AppVersion }}"
-          imagePullPolicy: Always
-          resources:
-            limits:
-              cpu: 100m
-              memory: 128Mi
-            requests:
-              cpu: 50m
-              memory: 64Mi
-          ports:
-          - containerPort: {{ .Values.containerPort }}
-          volumeMounts:
-          - name: certs
-            mountPath: /etc/webhook/certs
-            readOnly: true
-          livenessProbe:
-            httpGet:
-              scheme: HTTPS
-              path: /healthz
-              port: {{ .Values.containerPort }}
-          readinessProbe:
-            httpGet:
-              scheme: HTTPS
-              path: /healthz
-              port: {{ .Values.containerPort }}
+      - name: mutator
+        image: "{{ .Values.dockerImage }}:{{ .Chart.AppVersion }}"
+        imagePullPolicy: Always
+        resources:
+        {{- toYaml .Values.containerResources | nindent 10 }}
+        env:
+          - name: PORT
+            value: "{{ .Values.containerPort }}"
+          - name: K8S_LABELS
+            value: {{ .Values.appInputs.labels | toJson | b64enc }}
+          - name: K8S_ANNOTATIONS
+            value: {{ .Values.appInputs.annotations | toJson | b64enc }}
+        ports:
+        - containerPort: {{ .Values.containerPort }}
+        volumeMounts:
+        - name: certs
+          mountPath: /etc/webhook/certs
+          readOnly: true
+        livenessProbe:
+          httpGet:
+            scheme: HTTPS
+            path: /healthz
+            port: {{ .Values.containerPort }}
+        readinessProbe:
+          httpGet:
+            scheme: HTTPS
+            path: /healthz
+            port: {{ .Values.containerPort }}
       volumes:
         - name: certs
           secret:

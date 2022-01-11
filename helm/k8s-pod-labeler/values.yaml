@@ -1,6 +1,25 @@
+# certificate settings
 certificate:
   generate: true
-failurePolicy: "Ignore"
-timeoutSeconds: 10
+
+webhook:
+  # webhook failure policy (Ignore / Fail)
+  failurePolicy: "Ignore"
+  timeoutSeconds: 10
+
 dockerImage: "ghcr.io/troop-dev/k8s-pod-labeler"
 containerPort: 8443
+
+imagePullSecrets: []
+
+appInputs:
+  labels: {}
+  annotations: {}
+
+containerResources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
