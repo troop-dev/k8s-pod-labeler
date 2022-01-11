@@ -35,4 +35,16 @@ appInputs:
   annotations:
     "cluster-autoscaler.kubernetes.io/safe-to-evict": "true"
 
+namespaceSelector:
+  matchExpressions:
+  - key: troop.com/k8s-pod-labeler
+    operator: In
+    values:
+    - enabled
+  - key: troop.com/k8s-pod-labeler
+    operator: NotIn
+    values:
+    - disabled
+
+
 ```
