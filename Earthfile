@@ -1,6 +1,21 @@
 FROM ghcr.io/troop-dev/go-kit:1.17.0
 
+golang-base:
+    WORKDIR /app
+
+    # install gcc dependencies into alpine for CGO
+    RUN apk add gcc musl-dev curl git openssh
+
+    # install docker tools
+    # https://docs.docker.com/engine/install/debian/
+    RUN apk add --update --no-cache docker
+
+    # install linter
+    # binary will be $(go env GOPATH)/bin/golangci-lint
+    RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.42.1
+
 install-deps:
+	FROM +golang-base
 	# add git to known hosts
 	RUN mkdir -p /root/.ssh && \
 		chmod 700 /root/.ssh && \
