@@ -23,3 +23,16 @@ containerResources:
   requests:
     cpu: 50m
     memory: 64Mi
+
+objectSelector: {}
+
+namespaceSelector:
+  matchExpressions:
+  - key: troop.com/k8s-pod-labeler
+    operator: In
+    values:
+    - enabled
+  - key: troop.com/k8s-pod-labeler
+    operator: NotIn
+    values:
+    - disabled

@@ -51,13 +51,11 @@ webhooks:
     failurePolicy: {{ .Values.webhook.failurePolicy }}
     timeoutSeconds: {{ .Values.webhook.timeoutSeconds }}
     sideEffects: None
+    {{- with .Values.objectSelector }}
+    objectSelector:
+    {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.namespaceSelector }}
     namespaceSelector:
-      matchExpressions:
-      - key: troop.com/k8s-pod-labeler
-        operator: In
-        values:
-        - enabled
-      - key: troop.com/k8s-pod-labeler
-        operator: NotIn
-        values:
-        - disabled
+    {{- toYaml . | nindent 6 }}
+    {{- end }}
