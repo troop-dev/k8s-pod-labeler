@@ -10,8 +10,17 @@ webhook:
 dockerImage: "ghcr.io/troop-dev/k8s-pod-labeler"
 containerPort: 8443
 
+# image pull secrets for the pod labeler
+# imagePullSecrets:
+# - name: some-secret
 imagePullSecrets: []
 
+# specify the labels/annotations to apply
+# appInputs:
+#   labels:
+#     "foo": "bar"
+#   annotations:
+#     "bar": "baz"
 appInputs:
   labels: {}
   annotations: {}
