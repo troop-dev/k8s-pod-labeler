@@ -106,7 +106,7 @@ func parseB64Map(in string) (map[string]string, error) {
 	}
 	// unmarshal json
 	var out map[string]string
-	if err := json.Unmarshal(decoded, out); err != nil {
+	if err := json.Unmarshal(decoded, &out); err != nil {
 		return nil, err
 	}
 	return out, nil
