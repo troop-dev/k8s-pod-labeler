@@ -26,11 +26,17 @@ Helm install...
 ```bash
 # this enables pulling helm charts from github packages
 export HELM_EXPERIMENTAL_OCI=1
+# test your local config at local-values.yml
+helm template \
+  -f ./local-values.yml \
+  --version 0.3.6 \
+  oci://ghcr.io/troop-dev/helm/k8s-pod-labeler
 # install helm from a local-values.yml config
 helm install \
   -f ./local-values.yml \
   pod-labeler \
-  oci://ghcr.io/troop-dev/helm/k8s-pod-labeler:0.3.6
+  --version 0.3.6 \
+  oci://ghcr.io/troop-dev/helm/k8s-pod-labeler
 ```
 
 ### Local Dev
