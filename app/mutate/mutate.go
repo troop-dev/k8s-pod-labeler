@@ -49,26 +49,25 @@ func Mutate(body []byte, labels map[string]string, annotations map[string]string
 
 	// add some audit annotations, helpful to know why a object was modified, maybe (?)
 	resp.AuditAnnotations = map[string]string{
-		"mutateme": "yup it did it",
+		"k8s-pod-labeler": fmt.Sprintf("adding (%d) labels and (%d) annotations", len(labels), len(annotations)),
 	}
 
 	// the actual mutation is done by a string in JSONPatch style, i.e. we don't _actually_ modify the object, but
 	// tell K8S how it should modifiy it
 	patches := make([]jsonPatch, 0, len(annotations)+len(labels))
 
-	numLabels := len(pod.ObjectMeta.Labels)
-
-	for label, value := range labels {
-		// add the initial empty object
-		if numLabels == 0 {
-			patch := jsonPatch{
-				Op:    "add",
-				Path:  "/metadata/labels",
-				Value: "{}",
-			}
-			patches = append(patches, patch)
+	// add the initial label object patch
+	if len(pod.ObjectMeta.Labels) == 0 && len(labels) > 0 {
+		patch := jsonPatch{
+			Op:    "add",
+			Path:  "/metadata/labels",
+			Value: "{}",
 		}
+		patches = append(patches, patch)
+	}
 
+	// add each new label
+	for label, value := range labels {
 		log.Printf("adding label %s", label)
 		if _, ok := pod.ObjectMeta.Labels[label]; !ok {
 			patch := jsonPatch{
@@ -83,19 +82,18 @@ func Mutate(body []byte, labels map[string]string, annotations map[string]string
 		}
 	}
 
-	numAnnotations := len(pod.ObjectMeta.Annotations)
-
-	for annotation, value := range annotations {
-		// add the initial empty object
-		if numAnnotations == 0 {
-			patch := jsonPatch{
-				Op:    "add",
-				Path:  "/metadata/annotations",
-				Value: "{}",
-			}
-			patches = append(patches, patch)
+	// add initial annotation object patch
+	if len(pod.ObjectMeta.Annotations) == 0 && len(annotations) > 0 {
+		patch := jsonPatch{
+			Op:    "add",
+			Path:  "/metadata/annotations",
+			Value: "{}",
 		}
+		patches = append(patches, patch)
+	}
 
+	// add each new annotation
+	for annotation, value := range annotations {
 		log.Printf("adding annotation %s", annotation)
 		if _, ok := pod.ObjectMeta.Annotations[annotation]; !ok {
 			patch := jsonPatch{
@@ -105,7 +103,6 @@ func Mutate(body []byte, labels map[string]string, annotations map[string]string
 			}
 
 			patches = append(patches, patch)
-			numAnnotations += 1
 		} else {
 			log.Printf("skipping annotation, already exists, %s", annotation)
 		}
@@ -120,7 +117,7 @@ func Mutate(body []byte, labels map[string]string, annotations map[string]string
 
 	// Success, of course ;)
 	resp.Result = &metav1.Status{
-		Status: "Success",
+		Status: metav1.StatusSuccess,
 	}
 
 	admReview.Response = &resp
@@ -130,7 +127,6 @@ func Mutate(body []byte, labels map[string]string, annotations map[string]string
 	if err != nil {
 		return nil, err // untested section
 	}
-	log.Printf("resp: %s\n", string(responseBody)) // untested section
 
 	return responseBody, nil
 }
