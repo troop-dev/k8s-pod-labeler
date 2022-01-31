@@ -16,14 +16,9 @@ jobs:
         with:
             image: tonistiigi/binfmt:latest
             platforms: all
-      - uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.TROOP_CI_OSS_SSH_KEY }}
       - uses: actions/checkout@v2
         with:
           submodules: false
-      - name: checkout submodules
-        run: "git submodule update --init"
       - name: Docker Login
         env:
           DOCKER_REGISTRY: ghcr.io
