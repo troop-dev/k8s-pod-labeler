@@ -16,7 +16,7 @@ jobs:
         with:
             image: tonistiigi/binfmt:latest
             platforms: all
-      - uses: webfactory/ssh-agent@v0.5.3
+      - uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.TROOP_CI_OSS_SSH_KEY }}
       - uses: actions/checkout@v2
