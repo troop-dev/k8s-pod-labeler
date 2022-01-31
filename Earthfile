@@ -23,7 +23,7 @@ install-deps:
 	RUN git config --global url."git@github.com:".insteadOf "https://github.com/"
 	# add dependencies
 	COPY go.mod go.sum .
-	RUN --ssh go mod download -x
+	RUN go mod download -x
 
 add-code:
 	FROM +install-deps
