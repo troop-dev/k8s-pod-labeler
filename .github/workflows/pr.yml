@@ -38,7 +38,7 @@ jobs:
         env:
           EARTHLY_BUILD_ARGS: "COMMIT_HASH,VERSION"
           COMMIT_HASH: ${{ github.sha }}
-          VERSION: ${{ steps.version.outputs.VERSION }}
+          VERSION: "0.0.0-pr"
           FORCE_COLOR: 1
         run: |
           earthly -P --ci +ci
