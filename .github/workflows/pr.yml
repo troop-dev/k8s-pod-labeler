@@ -22,8 +22,6 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: false
-      - name: checkout submodules
-        run: "git submodule update --init"
       - name: Docker Login
         env:
           DOCKER_REGISTRY: ghcr.io
@@ -38,7 +36,7 @@ jobs:
         env:
           EARTHLY_BUILD_ARGS: "COMMIT_HASH,VERSION"
           COMMIT_HASH: ${{ github.sha }}
-          VERSION: ${{ steps.version.outputs.VERSION }}
+          VERSION: "0.0.0-pr"
           FORCE_COLOR: 1
         run: |
           earthly -P --ci +ci
