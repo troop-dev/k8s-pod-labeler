@@ -1,6 +1,6 @@
 # K8s pod labeler
 
-This repo implelents a [MutatingAdmissionWebhook](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#mutatingadmissionwebhook) that can add missing labels and annotations to pods. The webhook only adds the given label or mutation if it is not already present on the pod definition.
+This repo implelents a [MutatingAdmissionWebhook](https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#mutatingadmissionwebhook) that can add missing labels and annotations to pods. The webhook only adds the given label/annotation if it is not present on the pod definition.
 
 TODO:
  - add unit tests!
