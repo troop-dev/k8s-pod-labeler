@@ -41,7 +41,7 @@ jobs:
         run: |
           earthly -P --ci +ci
           earthly -P --artifact +test/coverage.out coverage.out
-      - uses: codecov/codecov-action@v2
+      - uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.out # optional
