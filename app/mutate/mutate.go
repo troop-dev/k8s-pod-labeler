@@ -92,7 +92,7 @@ func Mutate(body []byte, labels map[string]string, annotations map[string]string
 			if !hasAnnotations {
 				patch = jsonPatch{
 					Op:    "add",
-					Path:  "/metadata/annotationss",
+					Path:  "/metadata/annotations",
 					Value: map[string]string{jsonPointersEncode(annotation): value},
 				}
 			} else {

@@ -1,0 +1,7 @@
+# specify the labels/annotations to apply
+appInputs:
+  labels:
+    "foo": "bar"
+  annotations:
+    "cluster-autoscaler.kubernetes.io/safe-to-evict": "true"
+    "config.linkerd.io/skip-outbound-ports": "4317"
