@@ -1,3 +1,5 @@
+VERSION 0.6
+
 FROM ghcr.io/troop-dev/go-kit:1.17.0
 
 golang-base:
