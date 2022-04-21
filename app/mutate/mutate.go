@@ -67,7 +67,7 @@ func Mutate(body []byte, labels map[string]string, annotations map[string]string
 				patch = jsonPatch{
 					Op:    "add",
 					Path:  "/metadata/labels",
-					Value: map[string]string{jsonPointersEncode(label): value},
+					Value: map[string]string{label: value},
 				}
 			} else {
 				patch = jsonPatch{
@@ -93,7 +93,7 @@ func Mutate(body []byte, labels map[string]string, annotations map[string]string
 				patch = jsonPatch{
 					Op:    "add",
 					Path:  "/metadata/annotations",
-					Value: map[string]string{jsonPointersEncode(annotation): value},
+					Value: map[string]string{annotation: value},
 				}
 			} else {
 				patch = jsonPatch{
