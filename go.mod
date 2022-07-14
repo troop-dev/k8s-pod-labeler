@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/caarlos0/env/v6 v6.9.3
 	k8s.io/api v0.24.2
-	k8s.io/apimachinery v0.24.2
+	k8s.io/apimachinery v0.24.3
 )
 
 require (
